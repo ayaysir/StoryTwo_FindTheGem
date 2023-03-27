@@ -10,15 +10,25 @@ func starTextGenerator(blockNum: Int = 10, starProbability probability: Double) 
     }.joined(separator: "")
 }
 
+func treeTextGenerator(blockNum: Int = 10, treeProbability probability: Double) -> String {
+    return (1...blockNum).map { _ in
+        ChanceUtil.probability(probability) ? (ChanceUtil.probability(0.9) ? "🌲" : "🎄") : " "
+    }.joined(separator: "")
+}
+
+let BLOCK_NUM = 10
+
 struct StarrySky: View {
     @State var probability: Double = 0.05
     
     var body: some View {
         ForEach(0..<3) { _ in
             VStack {
-                ForEach(0..<8) { _ in
-                    Text(ChanceUtil.probability(probability) ? "⭐️" : " ")
-                }
+                Text(starTextGenerator(starProbability: probability))
+                Text(starTextGenerator(starProbability: probability))
+                Text(starTextGenerator(starProbability: probability))
+                Text(starTextGenerator(starProbability: probability))
+                Text(starTextGenerator(starProbability: probability))
             }
         }
     }
@@ -28,7 +38,7 @@ struct Atmosphere: View {
     var body: some View {
         VStack {
             ForEach(0..<10) {_ in
-                Text(" ")
+                Text(String(repeating: " ", count: BLOCK_NUM))
             }
         }
     }
@@ -37,8 +47,8 @@ struct Atmosphere: View {
 struct Land: View {
     var body: some View {
         VStack {
-            Text("🟫")
-            Text(" ")
+            Text(String(repeating: "🟫", count: BLOCK_NUM))
+            Text(String(repeating: " ", count: BLOCK_NUM))
         }
     }
 }
@@ -47,7 +57,7 @@ struct Tree: View {
     @State var probability: Double = 0.1
     var body: some View {
         VStack {
-            Text(ChanceUtil.probability(probability) ? (ChanceUtil.probability(0.9) ? "🌲" : "🎄") : " ")
+            Text(treeTextGenerator(treeProbability: 0.1))
         }
     }
 }
