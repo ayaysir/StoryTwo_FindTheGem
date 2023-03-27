@@ -4,6 +4,12 @@ func probability(_ probability: Double) -> Bool {
     return Double.random(in: 0...1) < probability
 }
 
+func starTextGenerator(blockNum: Int = 10, starProbability probability: Double) -> String {
+    return (1...blockNum).map { _ in
+        ChanceUtil.probability(probability) ? "⭐️" : " "
+    }.joined(separator: "")
+}
+
 struct StarrySky: View {
     @State var probability: Double = 0.05
     
@@ -48,8 +54,16 @@ struct Tree: View {
 
 struct ContentView: View {
     @State var isScrolling = false
+    @State var isJumping = false
     
-    func animateWithTimer(proxy: ScrollViewProxy, count: Int = 300, duration: Double = 15.0) {
+    /*
+     애니메이션 관련
+     https://stackoverflow.com/questions/57258846/how-to-make-a-swiftui-list-scroll-automatically
+     
+     animateWithTimer 출처
+     https://stackoverflow.com/questions/65152436/swiftui-how-to-use-withanimation-in-a-scrollview
+     */
+    func animateWithTimer(proxy: ScrollViewProxy, count: Int = 500, duration: Double = 15.0) {
         let timeInterval: Double = (duration / Double(count))
         var counter: Int = 0
         
@@ -73,7 +87,7 @@ struct ContentView: View {
                 ScrollViewReader { scrollViewProxy in
                     ScrollView(.horizontal) {
                         HStack {
-                            ForEach(0..<300) { item in
+                            ForEach(0..<500) { item in
                                 VStack {
                                     StarrySky(probability: 0.03)
                                     Atmosphere()
@@ -101,7 +115,7 @@ struct ContentView: View {
                         //         scrollViewProxy.scrollTo("Y-30")
                         //     }
                         // }
-                        animateWithTimer(proxy: scrollViewProxy)
+                        animateWithTimer(proxy: scrollViewProxy, count: 500, duration: 5)
                     }
                 }
             }.onAppear {
@@ -111,7 +125,16 @@ struct ContentView: View {
                 Spacer()
                 Text("🚶‍♂️")
                     .flipped(.horizontal)
+                    .offset(x: 0, y: isJumping ? -50 : 0)
+                    .animation(.linear(duration: 0.7), value: isJumping)
+                    .animation(.linear(duration: 0.3), value: !isJumping)
                 Spacer().frame(height: 46)
+            }
+        }.onTapGesture {
+            print("tap")
+            isJumping = true
+            Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+                self.isJumping = false
             }
         }
     }
