@@ -1,12 +1,8 @@
 import SwiftUI
 
-func probability(_ probability: Double) -> Bool {
-    return Double.random(in: 0...1) < probability
-}
-
 func starTextGenerator(blockNum: Int = 10, starProbability probability: Double) -> String {
     return (1...blockNum).map { _ in
-        ChanceUtil.probability(probability) ? "⭐️" : " "
+        ChanceUtil.probability(probability) ? "⭐️" : "＿"
     }.joined(separator: "")
 }
 
@@ -16,19 +12,17 @@ func treeTextGenerator(blockNum: Int = 10, treeProbability probability: Double) 
     }.joined(separator: "")
 }
 
-let BLOCK_NUM = 10
+let BLOCK_NUM = 300
 
 struct StarrySky: View {
     @State var probability: Double = 0.05
     
     var body: some View {
         ForEach(0..<3) { _ in
-            VStack {
-                Text(starTextGenerator(starProbability: probability))
-                Text(starTextGenerator(starProbability: probability))
-                Text(starTextGenerator(starProbability: probability))
-                Text(starTextGenerator(starProbability: probability))
-                Text(starTextGenerator(starProbability: probability))
+            VStack(alignment: .leading) {
+                ForEach(0..<10) { _ in
+                    Text(starTextGenerator(blockNum: BLOCK_NUM, starProbability: probability))
+                }
             }
         }
     }
@@ -62,9 +56,11 @@ struct Tree: View {
     }
 }
 
-struct ContentView: View {
+struct MoveAndJumpView: View {
     @State var isScrolling = false
     @State var isJumping = false
+    
+    let JUMP_UP_DUR: CGFloat = 0.7
     
     /*
      애니메이션 관련
@@ -93,11 +89,11 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            VStack {
+            VStack(alignment: .leading) {
                 ScrollViewReader { scrollViewProxy in
                     ScrollView(.horizontal) {
                         HStack {
-                            ForEach(0..<500) { item in
+                            ForEach(0..<1) { item in
                                 VStack {
                                     StarrySky(probability: 0.03)
                                     Atmosphere()
@@ -114,18 +110,18 @@ struct ContentView: View {
                         // scrollViewProxy.scrollTo("PurpleLine")
                         
                         // // 이동하는데 시간 설정 불가
-                        // DispatchQueue.main.async {
-                        //     withAnimation(.easeOut(duration: 30000)) {
-                        //         scrollViewProxy.scrollTo("PurpleLine")
-                        //     }
-                        // }
+                        DispatchQueue.main.async {
+                            withAnimation(.easeOut(duration: 30000)) {
+                                scrollViewProxy.scrollTo("PurpleLine")
+                            }
+                        }
                         
                         // DispatchQueue.main.async {
                         //     withAnimation(.easeOut(duration: 3)) {
                         //         scrollViewProxy.scrollTo("Y-30")
                         //     }
                         // }
-                        animateWithTimer(proxy: scrollViewProxy, count: 500, duration: 5)
+                        // animateWithTimer(proxy: scrollViewProxy, count: 500, duration: 5)
                     }
                 }
             }.onAppear {
@@ -136,16 +132,23 @@ struct ContentView: View {
                 Text("🚶‍♂️")
                     .flipped(.horizontal)
                     .offset(x: 0, y: isJumping ? -50 : 0)
-                    .animation(.linear(duration: 0.7), value: isJumping)
+                    .animation(.linear(duration: JUMP_UP_DUR), value: isJumping)
                     .animation(.linear(duration: 0.3), value: !isJumping)
                 Spacer().frame(height: 46)
             }
         }.onTapGesture {
             print("tap")
             isJumping = true
-            Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+            Timer.scheduledTimer(withTimeInterval: JUMP_UP_DUR, repeats: false) { _ in
                 self.isJumping = false
             }
         }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        // MoveAndJumpView()
+        NavStackView()
     }
 }
